@@ -40,7 +40,7 @@ public class UserController {
 //        "login":"a",
 //            "password":"a"
 //    }
-    @GetMapping(value = "validateUser")
+    @PostMapping(value = "validateUser")
     public @ResponseBody User getUserByCredentials(@RequestBody String info) {
         System.out.println(info);
         // Kaip parsinti?
@@ -51,6 +51,7 @@ public class UserController {
         return userRepo.getUserByLoginAndPassword(login, psw);
     }
 
+    // reik visus laukus per body aprasyti (kitaip null error)
     @PutMapping(value = "updateUser")
     public @ResponseBody User updateUser(@RequestBody User user) {
         userRepo.save(user);
@@ -70,6 +71,12 @@ public class UserController {
 
     @PostMapping(value = "insertUser")
     public @ResponseBody User createUser(@RequestBody User user) {
+        userRepo.save(user);
+        return userRepo.getUserByLoginAndPassword(user.getLogin(), user.getPassword());
+    }
+
+    @PostMapping(value = "insertBasicUser")
+    public @ResponseBody User createBasicUser(@RequestBody BasicUser user) {
         userRepo.save(user);
         return userRepo.getUserByLoginAndPassword(user.getLogin(), user.getPassword());
     }
