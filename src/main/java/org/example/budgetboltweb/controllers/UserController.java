@@ -81,6 +81,12 @@ public class UserController {
         return userRepo.getUserByLoginAndPassword(user.getLogin(), user.getPassword());
     }
 
+    @PostMapping(value = "insertDriver")
+    public @ResponseBody User createDriver(@RequestBody Driver user) {
+        userRepo.save(user);
+        return userRepo.getUserByLoginAndPassword(user.getLogin(), user.getPassword());
+    }
+
     @DeleteMapping(value = "deleteUser/{id}")
     public @ResponseBody String deleteUser(@PathVariable int id) {
         userRepo.deleteById(id);
@@ -102,7 +108,12 @@ public class UserController {
         return driverRepo.findAll();
     }
 
-    @GetMapping(value = "getAllRestaurants")
+//    @GetMapping(value = "getAllRestaurants")
+//    public @ResponseBody Iterable<Restaurant> getAllRestaurants() {
+//        return restaurantRepo.findAll();
+//    }
+
+    @GetMapping(value = "/allRestaurants")
     public @ResponseBody Iterable<Restaurant> getAllRestaurants() {
         return restaurantRepo.findAll();
     }
