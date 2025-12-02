@@ -1,5 +1,6 @@
 package org.example.budgetboltweb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class Cuisine {
     private String description;
     private Double price;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "food", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<FoodOrder> orders;
     @Enumerated(EnumType.STRING)

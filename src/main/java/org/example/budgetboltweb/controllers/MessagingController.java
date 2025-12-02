@@ -7,6 +7,7 @@ import org.example.budgetboltweb.repo.ChatRepo;
 import org.example.budgetboltweb.repo.ReviewRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,5 +26,10 @@ public class MessagingController {
     @GetMapping(value = "getAllReviews")
     public @ResponseBody Iterable<Review> getAllReviews() {
         return reviewRepo.findAll();
+    }
+
+    @GetMapping(value = "getMessagesForOrder/{id}")
+    public @ResponseBody Iterable<Review> getMessagesForOrder(@PathVariable int id) {
+        return chatRepo.getChatByOrder_Id(id).getMessages();
     }
 }

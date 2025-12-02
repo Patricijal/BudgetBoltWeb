@@ -1,5 +1,6 @@
 package org.example.budgetboltweb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,12 +23,16 @@ public class Chat {
     private String name;
     private String text;
     private LocalDate dateCreated;
+    @JsonIgnore
     @ManyToOne
     private BasicUser customer;
+    @JsonIgnore
     @ManyToOne
     private Driver driver;
+    @JsonIgnore
     @OneToOne(mappedBy = "chat", cascade = CascadeType.ALL)
     private FoodOrder order;
+    @JsonIgnore
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> messages;
 

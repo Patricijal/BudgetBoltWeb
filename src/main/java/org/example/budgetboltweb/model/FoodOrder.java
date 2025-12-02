@@ -1,5 +1,6 @@
 package org.example.budgetboltweb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,16 +21,22 @@ public class FoodOrder {
     private int id;
     private String name;
     private Double price;
+    @JsonIgnore
     @ManyToOne
     private BasicUser buyer;
+    @JsonIgnore
     @ManyToMany
     private List<Cuisine> food;
+    @JsonIgnore
     @ManyToOne
     private Driver driver;
+    @JsonIgnore
     @OneToOne
     private Chat chat;
+    @JsonIgnore
     @ManyToOne
     private Restaurant restaurant;
+    @JsonIgnore
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
     private LocalDate dateCreated;

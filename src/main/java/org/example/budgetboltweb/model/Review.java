@@ -1,5 +1,6 @@
 package org.example.budgetboltweb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,14 +18,19 @@ public class Review {
     private int id;
     private int rating;
     private String text;
+    @JsonIgnore
     @ManyToOne
     private BasicUser commentOwner;
+    @JsonIgnore
     @ManyToOne
     private BasicUser feedbackUser;
+    @JsonIgnore
     @ManyToOne
     private Restaurant restaurant;
+    @JsonIgnore
     @OneToOne
     private FoodOrder order;
+    @JsonIgnore
     @ManyToOne
     private Chat chat;
 

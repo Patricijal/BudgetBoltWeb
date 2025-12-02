@@ -1,5 +1,6 @@
 package org.example.budgetboltweb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,12 +19,14 @@ public class Driver extends BasicUser{
     private String license;
     private LocalDate bDate;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "driver", cascade= CascadeType.ALL, fetch = FetchType.LAZY)
     private List<FoodOrder> myOrders;
 
     @Enumerated(EnumType.STRING)
     private VehicleType vehicleType;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "driver", cascade= CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Chat> chats;
 

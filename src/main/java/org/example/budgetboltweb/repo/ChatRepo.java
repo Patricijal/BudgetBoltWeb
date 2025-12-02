@@ -4,4 +4,5 @@ import org.example.budgetboltweb.model.Chat;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ChatRepo extends JpaRepository<Chat, Integer> {
+    Chat getChatByOrder_Id(int id);
 }
