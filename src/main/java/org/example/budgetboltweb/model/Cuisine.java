@@ -29,6 +29,7 @@ public class Cuisine {
     private Allergens allergens;
     private boolean spicy = false;
     private boolean vegan = false;
+    @JsonIgnore
     @ManyToOne
     private Restaurant restaurant;
 

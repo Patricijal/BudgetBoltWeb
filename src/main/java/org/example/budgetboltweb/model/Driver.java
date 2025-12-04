@@ -1,5 +1,6 @@
 package org.example.budgetboltweb.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,13 +11,14 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.List;
 
-@Getter
-@Setter
+//@Getter
+//@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 public class Driver extends BasicUser{
     private String license;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate bDate;
 
     @JsonIgnore
@@ -36,5 +38,45 @@ public class Driver extends BasicUser{
         this.license = license;
         this.bDate = bDate;
         this.vehicleType = vehicleType;
+    }
+
+    public String getLicense() {
+        return license;
+    }
+
+    public void setLicense(String license) {
+        this.license = license;
+    }
+
+    public LocalDate getBDate() {
+        return bDate;
+    }
+
+    public void setBDate(LocalDate bDate) {
+        this.bDate = bDate;
+    }
+
+    public List<FoodOrder> getMyOrders() {
+        return myOrders;
+    }
+
+    public void setMyOrders(List<FoodOrder> myOrders) {
+        this.myOrders = myOrders;
+    }
+
+    public VehicleType getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(VehicleType vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
+    public List<Chat> getChats() {
+        return chats;
+    }
+
+    public void setChats(List<Chat> chats) {
+        this.chats = chats;
     }
 }

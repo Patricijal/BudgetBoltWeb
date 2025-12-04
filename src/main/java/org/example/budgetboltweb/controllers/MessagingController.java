@@ -6,10 +6,7 @@ import org.example.budgetboltweb.model.User;
 import org.example.budgetboltweb.repo.ChatRepo;
 import org.example.budgetboltweb.repo.ReviewRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class MessagingController {
@@ -32,4 +29,25 @@ public class MessagingController {
     public @ResponseBody Iterable<Review> getMessagesForOrder(@PathVariable int id) {
         return chatRepo.getChatByOrder_Id(id).getMessages();
     }
+
+    @PostMapping("insertMessage/{chatId}")
+    public @ResponseBody Review insertMessage(@PathVariable int chatId, @RequestBody Review message) {
+
+        Chat chat = chatRepo.findById(chatId)
+                .orElseThrow(() -> new RuntimeException("Chat not found"));
+
+        // Attach message to chat
+        message.setChat(chat);
+
+//        // Add message into chat's local list (optional but good for consistency)
+//        chat.getMessages().add(message);
+
+        // Save message
+        Review saved = reviewRepo.save(message);
+
+        return saved;
+    }
+
+
+
 }

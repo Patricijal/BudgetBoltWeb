@@ -23,7 +23,7 @@ public class FoodOrderController {
     }
 
     @GetMapping(value = "getAllCuisines")
-    public Iterable<Cuisine> getAllCuisines() {
+    public @ResponseBody Iterable<Cuisine> getAllCuisines() {
         return cuisineRepo.findAll();
     }
 }

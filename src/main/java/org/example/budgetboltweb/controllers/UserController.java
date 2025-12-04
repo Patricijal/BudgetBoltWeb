@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import org.example.budgetboltweb.model.*;
 import org.example.budgetboltweb.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Properties;
@@ -18,10 +19,18 @@ public class UserController {
     private DriverRepo driverRepo;
     @Autowired
     private RestaurantRepo restaurantRepo;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @GetMapping(value = "getAllUsers")
     public @ResponseBody Iterable<User> getAllUsers() {
         return userRepo.findAll();
+    }
+
+    @GetMapping("getUserById/{id}")
+    public @ResponseBody User getUserById(@PathVariable int id) {
+        return userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     @GetMapping(value = "getByLoginAndPassword")
@@ -59,15 +68,34 @@ public class UserController {
     }
 
     @PutMapping(value = "updateUserById/{id}")
-    public @ResponseBody User updateUserById(@RequestBody String info, @PathVariable int id) {
-        User user = userRepo.findById(id).orElseThrow(()-> new RuntimeException()); // cia noriu savo alerto
-        Gson gson = new Gson();
-        Properties properties = gson.fromJson(info, Properties.class);
-        var name = properties.getProperty("name");
-        user.setName(name);
-        userRepo.save(user);
-        return userRepo.getReferenceById(user.getId());
+    public @ResponseBody User updateUserById(@RequestBody User updatedUser, @PathVariable int id) {
+        // Fetch existing user
+        User existingUser = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Update common fields
+        existingUser.setLogin(updatedUser.getLogin());
+        existingUser.setPassword(updatedUser.getPassword());
+        existingUser.setName(updatedUser.getName());
+        existingUser.setSurname(updatedUser.getSurname());
+        existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
+
+        // Update subclass-specific fields
+        if (existingUser instanceof BasicUser && updatedUser instanceof BasicUser) {
+            ((BasicUser) existingUser).setAddress(((BasicUser) updatedUser).getAddress());
+        } else if (existingUser instanceof Driver && updatedUser instanceof Driver) {
+            Driver existingDriver = (Driver) existingUser;
+            Driver updatedDriver = (Driver) updatedUser;
+            existingDriver.setAddress(updatedDriver.getAddress());
+            existingDriver.setLicense(updatedDriver.getLicense());
+            existingDriver.setBDate(updatedDriver.getBDate());
+            existingDriver.setVehicleType(updatedDriver.getVehicleType());
+        }
+
+        // Save and return updated user
+        return userRepo.save(existingUser);
     }
+
 
     @PostMapping(value = "insertUser")
     public @ResponseBody User createUser(@RequestBody User user) {

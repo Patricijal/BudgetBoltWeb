@@ -36,7 +36,7 @@ public class FoodOrder {
     @JsonIgnore
     @ManyToOne
     private Restaurant restaurant;
-    @JsonIgnore
+
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
     private LocalDate dateCreated;
