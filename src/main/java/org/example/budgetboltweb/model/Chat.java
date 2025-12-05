@@ -47,6 +47,13 @@ public class Chat {
         this.messages = new ArrayList<>();
     }
 
+    public Chat(String name, String text, FoodOrder order) {
+        this.name = name;
+        this.text = text;
+        this.dateCreated = LocalDate.now();
+        this.order = order;
+    }
+
     @Override
     public String toString() {
         return "Chat: " + name + " | Created on: " + dateCreated;

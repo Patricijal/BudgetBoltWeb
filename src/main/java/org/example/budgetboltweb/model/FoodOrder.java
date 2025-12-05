@@ -26,6 +26,11 @@ public class FoodOrder {
     private BasicUser buyer;
     @JsonIgnore
     @ManyToMany
+    @JoinTable(
+            name = "foodorder_cuisine",
+            joinColumns = @JoinColumn(name = "orders_id"),
+            inverseJoinColumns = @JoinColumn(name = "food_id")
+    )
     private List<Cuisine> food;
     @JsonIgnore
     @ManyToOne
