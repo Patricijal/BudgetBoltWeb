@@ -1,6 +1,7 @@
 package org.example.budgetboltweb.controllers;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.example.budgetboltweb.model.*;
 import org.example.budgetboltweb.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,15 +50,41 @@ public class UserController {
 //        "login":"a",
 //            "password":"a"
 //    }
-    @PostMapping(value = "validateUser")
-    public @ResponseBody User getUserByCredentials(@RequestBody String info) {
+
+//    @PostMapping(value = "validateUser")
+//    public @ResponseBody User getUserByCredentials(@RequestBody String info) {
+//        System.out.println(info);
+//        // Kaip parsinti?
+//        Gson gson = new Gson();
+//        Properties properties = gson.fromJson(info, Properties.class);
+//        var login = properties.getProperty("login");
+//        var psw = properties.getProperty("password");
+//        return userRepo.getUserByLoginAndPassword(login, psw);
+//    }
+
+    @PostMapping(value = "validateUser") //http://localhost:8080/validateUser
+    public @ResponseBody String getUserByCredentials(@RequestBody String info) {
         System.out.println(info);
-        // Kaip parsinti?
+        //?Kaip parsint
         Gson gson = new Gson();
         Properties properties = gson.fromJson(info, Properties.class);
         var login = properties.getProperty("login");
         var psw = properties.getProperty("password");
-        return userRepo.getUserByLoginAndPassword(login, psw);
+        User user = userRepo.getUserByLoginAndPassword(login, psw);
+        if (user != null) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("userType", user.getClass().getSimpleName());
+            jsonObject.addProperty("login", user.getLogin());
+            jsonObject.addProperty("password", user.getPassword());
+            jsonObject.addProperty("name", user.getName());
+            jsonObject.addProperty("surname", user.getSurname());
+            jsonObject.addProperty("id", user.getId());
+
+            String json = gson.toJson(jsonObject);
+
+            return json;
+        }
+        return null;
     }
 
     // reik visus laukus per body aprasyti (kitaip null error)

@@ -1,6 +1,7 @@
 package org.example.budgetboltweb.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -56,6 +57,11 @@ public class Review {
 //    public String toString() {
 //        return "Rating: " + rating + " | Text: " + text;
 //    }
+
+    @JsonProperty("chatId")
+    public int getChatId() {
+        return chat != null ? chat.getId() : 0;
+    }
 
     @Override
     public String toString() {

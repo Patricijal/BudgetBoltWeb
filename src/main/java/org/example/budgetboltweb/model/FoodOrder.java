@@ -1,6 +1,7 @@
 package org.example.budgetboltweb.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -62,6 +63,16 @@ public class FoodOrder {
         this.restaurant = restaurant;
         this.orderStatus = OrderStatus.PENDING;
         this.dateCreated = LocalDate.now();
+    }
+
+    @JsonProperty("buyerId")
+    public int getBuyerId() {
+        return buyer != null ? buyer.getId() : 0;
+    }
+
+    @JsonProperty("driverId")
+    public int getDriverId() {
+        return driver != null ? driver.getId() : 0;
     }
 
     @Override

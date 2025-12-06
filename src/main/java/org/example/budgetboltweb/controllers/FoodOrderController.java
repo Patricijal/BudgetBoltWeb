@@ -3,13 +3,17 @@ package org.example.budgetboltweb.controllers;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.example.budgetboltweb.model.Cuisine;
+import org.example.budgetboltweb.model.Driver;
 import org.example.budgetboltweb.model.FoodOrder;
+import org.example.budgetboltweb.model.OrderStatus;
 import org.example.budgetboltweb.repo.CuisineRepo;
+import org.example.budgetboltweb.repo.DriverRepo;
 import org.example.budgetboltweb.repo.FoodOrderRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -20,10 +24,17 @@ public class FoodOrderController {
     private CuisineRepo cuisineRepo;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private DriverRepo driverRepo;
 
     @GetMapping(value = "getByUserId/{id}")
     public @ResponseBody Iterable<FoodOrder> getByUserId(@PathVariable int id) {
         return foodOrderRepo.getFoodOrdersByBuyer_Id(id);
+    }
+
+    @GetMapping(value = "getByDriverId/{id}")
+    public @ResponseBody Iterable<FoodOrder> getByDriverId(@PathVariable int id) {
+        return foodOrderRepo.getFoodOrdersByDriver_Id(id);
     }
 
     @GetMapping(value = "getAllCuisines")
@@ -53,5 +64,30 @@ public class FoodOrderController {
     public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequest req) {
         FoodOrder saved = orderService.createOrder(req);
         return ResponseEntity.ok(saved.getId());
+    }
+
+    @GetMapping("getPendingOrders")
+    public List<FoodOrder> getPendingOrdersForDriver() {
+        return foodOrderRepo.findByOrderStatus(OrderStatus.PENDING);
+    }
+
+    @PutMapping("assignDriverToOrder/{driverId}")
+    public FoodOrder assignDriver(@PathVariable int driverId, @RequestParam int orderId) {
+        FoodOrder order = foodOrderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        Driver driver = driverRepo.findById(driverId)
+                .orElseThrow(() -> new RuntimeException("Driver not found"));
+        order.setDriver(driver);
+        order.setOrderStatus(OrderStatus.IN_DELIVERY);
+        order.setDateUpdated(LocalDate.now());
+        return foodOrderRepo.save(order);
+    }
+
+    @PutMapping("completeOrder/{orderId}")
+    public void completeOrder(@PathVariable int orderId) {
+        FoodOrder order = foodOrderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));;
+        order.setOrderStatus(OrderStatus.COMPLETED);
+        foodOrderRepo.save(order);
     }
 }
