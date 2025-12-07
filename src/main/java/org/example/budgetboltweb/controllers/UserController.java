@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Properties;
 
 @RestController
@@ -39,28 +41,6 @@ public class UserController {
         return userRepo.getUserByLoginAndPassword("a", "a");
     }
 
-    //http://localhost:8080/validateUser?login=a&password=a
-//    @GetMapping(value = "validateUser")
-//    public @ResponseBody User getUserByCredentials(@RequestParam String login, @RequestParam String password) {
-//        return userRepo.getUserByLoginAndPassword(login, password);
-//    }
-
-    //http://localhost:8080/validateUser su raw body
-//    {
-//        "login":"a",
-//            "password":"a"
-//    }
-
-//    @PostMapping(value = "validateUser")
-//    public @ResponseBody User getUserByCredentials(@RequestBody String info) {
-//        System.out.println(info);
-//        // Kaip parsinti?
-//        Gson gson = new Gson();
-//        Properties properties = gson.fromJson(info, Properties.class);
-//        var login = properties.getProperty("login");
-//        var psw = properties.getProperty("password");
-//        return userRepo.getUserByLoginAndPassword(login, psw);
-//    }
 
     @PostMapping(value = "validateUser") //http://localhost:8080/validateUser
     public @ResponseBody String getUserByCredentials(@RequestBody String info) {
@@ -69,57 +49,62 @@ public class UserController {
         Gson gson = new Gson();
         Properties properties = gson.fromJson(info, Properties.class);
         var login = properties.getProperty("login");
-        var psw = properties.getProperty("password");
-        User user = userRepo.getUserByLoginAndPassword(login, psw);
-        if (user != null) {
+        var rawPassword = properties.getProperty("password");
+        User user = userRepo.findByLogin(login)
+                .orElse(null);
+
+        if (user != null && passwordEncoder.matches(rawPassword, user.getPassword())) {
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("userType", user.getClass().getSimpleName());
             jsonObject.addProperty("login", user.getLogin());
-            jsonObject.addProperty("password", user.getPassword());
             jsonObject.addProperty("name", user.getName());
             jsonObject.addProperty("surname", user.getSurname());
             jsonObject.addProperty("id", user.getId());
-
-            String json = gson.toJson(jsonObject);
-
-            return json;
+            return gson.toJson(jsonObject);
         }
         return null;
     }
 
     // reik visus laukus per body aprasyti (kitaip null error)
     @PutMapping(value = "updateUser")
-    public @ResponseBody User updateUser(@RequestBody User user) {
-        userRepo.save(user);
-        return userRepo.getReferenceById(user.getId());
+    public BasicUser updateUser(@RequestBody Map<String, Object> payload) {
+        Integer id = (Integer) payload.get("id");
+        Integer bonusPoints = (Integer) payload.get("bonusPoints");
+
+        BasicUser user = (BasicUser) userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setBonusPoints(bonusPoints);
+        user.setDateUpdated(LocalDateTime.now());
+
+        return userRepo.save(user);
     }
 
     @PutMapping(value = "updateUserById/{id}")
     public @ResponseBody User updateUserById(@RequestBody User updatedUser, @PathVariable int id) {
-        // Fetch existing user
         User existingUser = userRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Update common fields
+        // Common fields
         existingUser.setLogin(updatedUser.getLogin());
-        existingUser.setPassword(updatedUser.getPassword());
+        existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
         existingUser.setName(updatedUser.getName());
         existingUser.setSurname(updatedUser.getSurname());
         existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
+        existingUser.setDateUpdated(LocalDateTime.now());
 
-        // Update subclass-specific fields
-        if (existingUser instanceof BasicUser && updatedUser instanceof BasicUser) {
-            ((BasicUser) existingUser).setAddress(((BasicUser) updatedUser).getAddress());
-        } else if (existingUser instanceof Driver && updatedUser instanceof Driver) {
+        // Subclass-specific fields
+        if (existingUser instanceof Driver && updatedUser instanceof Driver) {
             Driver existingDriver = (Driver) existingUser;
             Driver updatedDriver = (Driver) updatedUser;
             existingDriver.setAddress(updatedDriver.getAddress());
             existingDriver.setLicense(updatedDriver.getLicense());
             existingDriver.setBDate(updatedDriver.getBDate());
             existingDriver.setVehicleType(updatedDriver.getVehicleType());
+        } else if (existingUser instanceof BasicUser && updatedUser instanceof BasicUser) {
+            ((BasicUser) existingUser).setAddress(((BasicUser) updatedUser).getAddress());
         }
 
-        // Save and return updated user
         return userRepo.save(existingUser);
     }
 
@@ -132,12 +117,14 @@ public class UserController {
 
     @PostMapping(value = "insertBasicUser")
     public @ResponseBody User createBasicUser(@RequestBody BasicUser user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepo.save(user);
         return userRepo.getUserByLoginAndPassword(user.getLogin(), user.getPassword());
     }
 
     @PostMapping(value = "insertDriver")
     public @ResponseBody User createDriver(@RequestBody Driver user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepo.save(user);
         return userRepo.getUserByLoginAndPassword(user.getLogin(), user.getPassword());
     }
@@ -163,10 +150,6 @@ public class UserController {
         return driverRepo.findAll();
     }
 
-//    @GetMapping(value = "getAllRestaurants")
-//    public @ResponseBody Iterable<Restaurant> getAllRestaurants() {
-//        return restaurantRepo.findAll();
-//    }
 
     @GetMapping(value = "/allRestaurants")
     public @ResponseBody Iterable<Restaurant> getAllRestaurants() {

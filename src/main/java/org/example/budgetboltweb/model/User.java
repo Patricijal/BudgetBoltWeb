@@ -1,5 +1,7 @@
 package org.example.budgetboltweb.model;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +16,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "userType"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = BasicUser.class, name = "BasicUser"),
+        @JsonSubTypes.Type(value = Driver.class, name = "Driver")
+})
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,22 +46,8 @@ public class User implements Serializable {
         this.surname = surname;
         this.phoneNumber = phoneNumber;
         this.dateCreated = LocalDateTime.now();
+        this.dateUpdated = LocalDateTime.now();
     }
-
-//    @Override
-//    public String toString() {
-//        return "User{" +
-//                "id=" + id +
-//                ", login='" + login + '\'' +
-//                ", password='" + password + '\'' +
-//                ", name='" + name + '\'' +
-//                ", surname='" + surname + '\'' +
-//                ", phoneNumber='" + phoneNumber + '\'' +
-//                ", dateCreated=" + dateCreated +
-//                ", dateUpdated=" + dateUpdated +
-//                ", isAdmin=" + isAdmin +
-//                '}';
-//    }
 
     @Override
     public String toString() { return "Name: " + name + " Surname: " + surname; }

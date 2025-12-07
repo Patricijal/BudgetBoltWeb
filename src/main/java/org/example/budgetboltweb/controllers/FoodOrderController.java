@@ -47,23 +47,24 @@ public class FoodOrderController {
         return cuisineRepo.getCuisineByRestaurantId(id);
     }
 
+    @PostMapping("/createOrder")
+    public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequest req) {
+        FoodOrder saved = orderService.createOrder(req);
+        return ResponseEntity.ok(saved.getId());
+    }
+
     @Data
     public static class CreateOrderRequest {
         private int userId;
         private int restaurantId;
         private List<OrderItemDTO> items;
+        private int bonusPoints; // user’s bonus points to apply
 
         @Data
         public static class OrderItemDTO {
             private int cuisineId;
             private int quantity;
         }
-    }
-
-    @PostMapping("createOrder")
-    public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequest req) {
-        FoodOrder saved = orderService.createOrder(req);
-        return ResponseEntity.ok(saved.getId());
     }
 
     @GetMapping("getPendingOrders")

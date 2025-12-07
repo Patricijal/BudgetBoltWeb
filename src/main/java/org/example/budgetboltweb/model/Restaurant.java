@@ -20,6 +20,7 @@ import java.util.List;
 public class Restaurant extends BasicUser {
     private String workHours;
     private Double rating;
+    private Integer discount = 0;
     @JsonIgnore
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Cuisine> menuItems;
@@ -34,5 +35,6 @@ public class Restaurant extends BasicUser {
         super(login, password, name, surname, phoneNumber, address);
         this.workHours = workHours;
         this.rating = rating;
+        this.discount = 0;
     }
 }

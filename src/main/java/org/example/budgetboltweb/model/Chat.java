@@ -36,10 +36,6 @@ public class Chat {
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> messages;
 
-//    private LocalDateTime createdAt;
-//    private LocalDateTime lastMessageAt;
-//    private boolean isActive;
-
     public Chat(String name, FoodOrder order) {
         this.name = name;
         this.order = order;

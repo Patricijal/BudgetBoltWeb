@@ -30,24 +30,9 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Restaurant not found"));
 
         List<Cuisine> cuisines = new ArrayList<>();
-
-        for (FoodOrderController.CreateOrderRequest.OrderItemDTO item : req.getItems()) {
-            Cuisine cuisine = cuisineRepo.findById(item.getCuisineId())
-                    .orElseThrow(() -> new RuntimeException("Cuisine not found"));
-
-            // Add cuisine repeated by quantity
-//            for (int i = 0; i < item.getQuantity(); i++) {
-//                cuisines.add(cuisine);
-//            }
-            cuisines.add(cuisine);
-        }
-
-        // Calculate total
-//        double totalPrice = cuisines.stream()
-//                .mapToDouble(Cuisine::getPrice)
-//                .sum();
-
         double totalPrice = 0;
+
+        // Calculate total price and build cuisine list
         for (FoodOrderController.CreateOrderRequest.OrderItemDTO item : req.getItems()) {
             Cuisine cuisine = cuisineRepo.findById(item.getCuisineId())
                     .orElseThrow(() -> new RuntimeException("Cuisine not found"));
@@ -55,11 +40,16 @@ public class OrderService {
             totalPrice += cuisine.getPrice() * item.getQuantity();
         }
 
+        // Apply restaurant discount
+        double finalPrice = totalPrice * (1 - restaurant.getDiscount() / 100.0) * (1 - req.getBonusPoints() / 100.0);
+        finalPrice = Math.round(finalPrice * 100.0) / 100.0;
+
+        // Create order
         FoodOrder order = new FoodOrder();
         order.setName("Order for " + user.getName());
-        order.setPrice(totalPrice);
+        order.setPrice(finalPrice);
         order.setBuyer(user);
-        order.setFood(cuisines);                // <-- matches your entity
+        order.setFood(cuisines);
         order.setRestaurant(restaurant);
         order.setOrderStatus(OrderStatus.PENDING);
         order.setDateCreated(LocalDate.now());

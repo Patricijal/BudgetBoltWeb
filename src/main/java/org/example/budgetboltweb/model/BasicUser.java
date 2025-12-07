@@ -20,6 +20,7 @@ import java.util.List;
 @Entity
 public class BasicUser extends User{
     protected String address;
+    protected Integer bonusPoints = 0;
     @JsonIgnore
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     protected List<Chat> chats;
@@ -36,6 +37,7 @@ public class BasicUser extends User{
     public BasicUser(String login, String password, String name, String surname, String phoneNumber, String address) {
         super(login, password, name, surname, phoneNumber);
         this.address = address;
+        this.bonusPoints = 0;
         this.myReviews = new ArrayList<>();
         this.feedback = new ArrayList<>();
         this.myOrders = new ArrayList<>();

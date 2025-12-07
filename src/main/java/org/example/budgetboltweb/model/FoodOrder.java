@@ -48,13 +48,6 @@ public class FoodOrder {
     private LocalDate dateCreated;
     private LocalDate dateUpdated;
 
-//    public FoodOrder(String name, Double price, BasicUser buyer, Restaurant restaurant) {
-//        this.name = name;
-//        this.price = price;
-//        this.buyer = buyer;
-//        this.restaurant = restaurant;
-//    }
-
     public FoodOrder(String name, Double price, BasicUser buyer, List<Cuisine> food, Restaurant restaurant) {
         this.name = name;
         this.price = price;

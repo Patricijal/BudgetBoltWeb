@@ -33,13 +33,6 @@ public class Cuisine {
     @ManyToOne
     private Restaurant restaurant;
 
-//    public Cuisine(String title, String description, Allergens allergens, double price) {
-//        this.title = title;
-//        this.description = description;
-//        this.allergens = allergens;
-//        this.price = price;
-//    }
-
     public Cuisine(String title, String description, Double price, boolean spicy, boolean vegan, Restaurant restaurant, Allergens allergens) {
         this.title = title;
         this.description = description;

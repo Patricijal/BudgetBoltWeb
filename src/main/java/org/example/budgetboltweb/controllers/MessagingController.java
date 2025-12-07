@@ -21,6 +21,8 @@ public class MessagingController {
     private BasicUserRepo basicUserRepo;
     @Autowired
     private UserRepo userRepo;
+    @Autowired
+    private RestaurantRepo restaurantRepo;
 
     @GetMapping(value = "getAllChats")
     public @ResponseBody Iterable<Chat> getAllChats() {
@@ -32,10 +34,6 @@ public class MessagingController {
         return reviewRepo.findAll();
     }
 
-//    @GetMapping(value = "getMessagesForOrder/{id}")
-//    public @ResponseBody Iterable<Review> getMessagesForOrder(@PathVariable int id) {
-//        return chatRepo.getChatByOrder_Id(id).getMessages();
-//    }
 
     @GetMapping(value = "getMessagesForOrder/{id}")
     public @ResponseBody Iterable<Review> getMessagesForOrder(@PathVariable int id) {
@@ -49,23 +47,6 @@ public class MessagingController {
         return chatRepo.getChatByOrder_Id(id).getMessages();
     }
 
-//    @PostMapping("insertMessage/{chatId}")
-//    public @ResponseBody Review insertMessage(@PathVariable int chatId, @RequestBody Review message) {
-//
-//        Chat chat = chatRepo.findById(chatId)
-//                .orElseThrow(() -> new RuntimeException("Chat not found"));
-//
-//        // Attach message to chat
-//        message.setChat(chat);
-//
-////        // Add message into chat's local list (optional but good for consistency)
-////        chat.getMessages().add(message);
-//
-//        // Save message
-//        Review saved = reviewRepo.save(message);
-//
-//        return saved;
-//    }
 
     @PostMapping(value = "sendMessage")
     public @ResponseBody String sendMessage(@RequestBody String info) {
@@ -86,38 +67,58 @@ public class MessagingController {
     public static class ReviewDTO {
         private int rating;
         private String text;
-        private int orderId;        // for client review
+
+        private Integer orderId;
+        private Integer chatId;
+        private Integer restaurantId;
+
         private int commentOwnerId;
         private int feedbackUserId;
-        private boolean driver;     // true if driver review
-        private Integer chatId;     // required if driver review
+
+        private boolean driver;
     }
+
 
     @PostMapping("leaveReview")
     public Review leaveReview(@RequestBody ReviewDTO dto) {
+
         Review review = new Review();
 
-        if (dto.isDriver()) {
-            if (dto.getChatId() == null) {
-                throw new RuntimeException("Chat ID required for driver review");
-            }
-            review.setChat(chatRepo.findById(dto.getChatId())
-                    .orElseThrow(() -> new RuntimeException("Chat not found")));
-        } else {
+        if (dto.getRestaurantId() != null) {
+            System.out.println("Creating restaurant review...");
+
+            Restaurant restaurant = restaurantRepo.findById(dto.getRestaurantId())
+                    .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+
+            review.setRestaurant(restaurant);
+        }
+
+        else if (dto.isDriver()) {
+            Chat chat = chatRepo.findById(dto.getChatId())
+                    .orElseThrow(() -> new RuntimeException("Chat not found"));
+            review.setChat(chat);
+        }
+
+        else {
             FoodOrder order = foodOrderRepo.findById(dto.getOrderId())
                     .orElseThrow(() -> new RuntimeException("Order not found"));
+
             if (order.getOrderStatus() != OrderStatus.COMPLETED)
                 throw new RuntimeException("Order not completed");
+
             review.setOrder(order);
         }
 
+        // Common user fields
         User owner = userRepo.findById(dto.getCommentOwnerId())
                 .orElseThrow(() -> new RuntimeException("Owner user not found"));
+
         User target = userRepo.findById(dto.getFeedbackUserId())
                 .orElseThrow(() -> new RuntimeException("Target user not found"));
 
         review.setCommentOwner((BasicUser) owner);
         review.setFeedbackUser((BasicUser) target);
+
         review.setRating(dto.getRating());
         review.setText(dto.getText());
 
